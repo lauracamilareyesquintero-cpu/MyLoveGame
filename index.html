@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Valentine's Game 💕</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: #111;
+      color: #ff4d6d;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-top: 50px;
+      color: #ff1a4d;
+      text-shadow: 2px 2px #fff;
+    }
+
+    #startScreen {
+      margin-top: 100px;
+    }
+
+    button {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1em;
+      padding: 15px 30px;
+      margin: 10px;
+      background: #ff1a4d;
+      color: #fff;
+      border: 3px solid #fff;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    #startScreen button {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.3; }
+    }
+
+    button:hover {
+      background: #fff;
+      color: #ff1a4d;
+    }
+
+    .question-box {
+      background: #fff;
+      color: #111;
+      border: 4px solid #ff1a4d;
+      margin: 40px auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      text-align: left;
+      box-shadow: 4px 4px #ff1a4d;
+    }
+
+    .level {
+      font-size: 1.2em;
+      color: #ff1a4d;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin: 8px 0;
+      padding: 10px;
+      background: #ff4d6d;
+      color: #fff;
+      border: 2px solid #111;
+      cursor: pointer;
+    }
+
+    .option-btn:hover {
+      background: #fff;
+      color: #ff4d6d;
+    }
+
+    #result, #final {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #fff;
+    }
+
+    .question {
+      font-size: 1.2em;
+      color: #ff4d6d;
+      text-shadow: 0 0 5px #fff, 0 0 10px #ff1a4d;
+      animation: glowBlink 2s infinite;
+    }
+
+    @keyframes glowBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* 💕 Corazones flotantes */
+    .hearts {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -20px;
+      font-size: 24px;
+      animation: floatUp 5s linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>VALENTINE'S GAME</h1>
+
+  <div id="startScreen">
+    <p>MADE JUST FOR YOU!</p>
+    <button onclick="startGame()">START</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="level" id="level"></div>
+
+    <div class="question-box">
+      <div class="question" id="question"></div>
+      <div id="options"></div>
+    </div>
+
+    <div id="result"></div>
+    <div id="final"></div>
+  </div>
+
+  <!-- Audios -->
+  <audio id="bgMusic" loop>
+    <source src="jueguito.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="coinSound">
+    <source src="coin.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="levelUpSound">
+    <source src="levelup.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const preguntas = [
+      { nivel: "Nivel 1", texto: "¿Dónde fue nuestra primera cita?", opciones: ["En el cine", "Magola buen día", "En el parque"], correcta: 1 },
+      { nivel: "Nivel 2", texto: "¿Cuál es nuestro plan favorito?", opciones: ["Cantar en el carro", "Viajar", "Comer y ver series", "Correr juntas", "TODAS SON CORRECTAS💛"], correcta: 4 },
+      { nivel: "Nivel 3", texto: "¿En qué año nos conocimos?", opciones: ["2020", "💛2022💛", "2021", "2023"], correcta: 1 },
+      { nivel: "Nivel 4", texto: "¿Qué apodo cariñoso me gusta usar más contigo?", opciones: ["Amor", "Vida", "Crespa linda", "Todas las respuestas son correctas 💛💛"], correcta: 3 },
+      { nivel: "Nivel 5", texto: "¿Dónde soñamos viajar juntas este año?", opciones: ["Brasil", "Roma", "Tokio", "México"], correcta: 0 },
+      { nivel: "Nivel 6", texto: "¿Qué cosa me encanta que tú hagas?", opciones: ["Todo, hasta como respiras 😍💛", "Hablar como bebé", "Decir ‘Me pisho me pishooo🥹’", "Hacerme reír"], correcta: o },
+      { nivel: "Nivel 7", texto: "¿Te quieres casar conmigo?", opciones: ["Obvio😍", "Claro que sí", "Mañana mismo", "Siempre"], correctas: [0,1,2,3] },
+      { nivel: "Nivel 8", texto: "¿Cuál es nuestro plan favorito para un domingo?", opciones: ["Ir a cine", "Salir a caminar", "Ir a correr y después comer", "Dormir abrazadas"], correcta: 2 }
+    ];
+
+    let indice = 0;
+    let puntaje = 0;
+
+    function startGame() {
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      document.getElementById("bgMusic").play();
+      document.getElementById("coinSound").play();
+      mostrarPregunta();
+    }
+
+    function mostrarPregunta() {
+      if (indice < preguntas.length) {
+        const q = preguntas[indice];
+        document.getElementById("level").textContent = q.nivel;
+        document.getElementById("question").textContent = q.texto;
+
+        const opcionesDiv = document.getElementById("options");
+        opcionesDiv.innerHTML = "";
+
+        q.opciones.forEach((opcion, i) => {
+          const btn = document.createElement("button");
+          btn.textContent = opcion;
+          btn.className = "option-btn";
+          btn.onclick = () => verificarRespuesta(i);
+          opcionesDiv.appendChild(btn);
+        });
+      } else {
+        document.getElementById("level").textContent = "";
+        document.getElementById("question").textContent = "¡Trivia terminada! 💕";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("result").textContent =
+          "Tu puntaje fue: " + puntaje + "/" + preguntas.length;
+
+        const finalDiv = document.getElementById("final");
+        finalDiv.innerHTML = "💌 ¿Quieres ser mi San Valentín? 💌<br><br>";
+
+        const siBtn = document.createElement("button");
+        siBtn.textContent = "¡Sí! 💖";
+        siBtn.onclick = () => {
+          finalDiv.innerHTML = `
+            🎉 Sabía que dirías que sí. TE AMO MI CRESPA LINDA😍 ¡Feliz San Valentín!<br><br>
+            <img src="foto.jpg" alt="Nuestra foto"
+              style="margin-top:20px; max-width:300px;
+              border:4px solid #ff1a4d;
+              box-shadow:0 0 15px #ff4d6d;">
+          `;
+          lanzarCorazones();
+        };
+
+        const claroBtn = document.createElement("button");
+        claroBtn.textContent = "¡Claro que sí! 💕";
+        claroBtn.onclick = () => {
+          finalDiv.innerHTML = `
+            🌹 Eres lo mejor que me ha pasado mi amor. TE AMO MI CRESPA LINDA 💞 ¡Feliz San Valentín!<br><br>
+            <img src="foto.jpg" alt="Nuestra foto"
+              style="margin-top:20px; max-width:300px;
+              border:4px solid #ff1a4d;
+              box-shadow:0 0 15px #ff4d6d;">
+          `;
+          lanzarCorazones();
+        };
+
+        finalDiv.appendChild(siBtn);
+        finalDiv.appendChild(claroBtn);
+      }
+    }
+
+    function verificarRespuesta(i) {
+      const q = preguntas[indice];
+
+      if (Array.isArray(q.correctas)) {
+        puntaje++;
+        document.getElementById("result").textContent = "¡Correcto! 😍";
+      } else {
+        if (i === q.correcta) {
+          puntaje++;
+          document.getElementById("result").textContent = "¡Correcto! 😍";
+        } else {
+          document.getElementById("result").textContent = "Ups, no era esa 💔";
+        }
+      }
+
+      indice++;
+      document.getElementById("levelUpSound").play();
+      setTimeout(mostrarPregunta, 1000);
+    }
+
+    function lanzarCorazones() {
+      const container = document.createElement("div");
+      container.className = "hearts";
+      document.body.appendChild(container);
+
+      const emojis = ["💖","💕","💘","❤️"];
+
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.fontSize = (16 + Math.random() * 24) + "px";
+        heart.style.animationDuration = (3 + Math.random() * 3) + "s";
+        container.appendChild(heart);
+      }
+    }
+  </script>
+
+</body>
+</html>
